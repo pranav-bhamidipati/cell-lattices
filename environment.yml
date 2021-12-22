@@ -1,0 +1,43 @@
+# run: conda env create --file environment.yml --prefix ./env
+name: lateral_signaling
+
+dependencies:
+  - python=3.9.*
+  - numpy=1.19.*
+  - pandas=1.*
+  - scipy=1.7.*
+  - numba
+#  - dask=2021.*
+  - colorcet
+  - holoviews=1.*
+  - matplotlib=3.4.*
+  - seaborn=0.*
+  - scikit-image=0.*
+  - selenium=3.*
+#  - h5py=3.*
+#  - pytables=3.*
+  - conda-forge::umap-learn=0.*
+  - conda-forge::datashader=0.*
+  - conda-forge::bokeh=2.*
+  - conda-forge::tqdm=4.*
+#  - conda-forge::ffmpeg
+  - conda-forge::imageio-ffmpeg
+  - conda-forge::firefox
+  - conda-forge::geckodriver
+#  - conda-forge::ipywidgets
+#  - conda-forge::shapely=1.*
+#  - conda-forge::descartes=1.*
+  - conda-forge::dask-jobqueue=0.*
+  - conda-forge::nodejs
+  - conda-forge::jupyterlab
+  - conda-forge::ipympl
+  - pip
+  - pip:
+    - sacred
+    - networkx==2.*
+#    - bebi103==0.1.8
+#    - matplotlib-scalebar==0.*
+    - cmocean
+    - ipywidgets
+    - blackcellmagic
+    - dask-labextension
