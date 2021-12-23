@@ -22,7 +22,7 @@ import seaborn as sns
 
 # Options for saving output(s)
 save     = True
-save_dir = os.path.realpath("/home/pbhamidi/git/cell-lattices/plots")
+save_dir = os.path.realpath("/home/pbhamidi/git/cell-lattices/data")
 # fmt      = "png"
 # dpi      = 300
 
@@ -86,12 +86,12 @@ data       = combs_bool[data_slice]
 clusters   = n_comp[data_slice]
 colors     = [sns.color_palette()[i] for i in clusters]
 
-# # Perform UMAP with progress
-# reducer   = umap.UMAP(metric="hamming", verbose=True)
-# embedding = reducer.fit_transform(combs)
+# Perform UMAP with progress
+reducer   = umap.UMAP(metric="hamming", verbose=True)
+embedding = reducer.fit_transform(combs)
 
 #### DUMMY EMBEDDING ############
-embedding = np.random.random((ncomb, 2))
+# embedding = np.random.random((ncomb, 2))
 #################################
 
 print("5")
