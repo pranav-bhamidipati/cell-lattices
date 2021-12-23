@@ -51,6 +51,11 @@ for i, idx in enumerate(tqdm(combs_idx)):
 # Get combinations as strings
 combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
 
+# Define computation
+def n_connected_components(idx):
+    """Computes number of connected components given cell indices"""
+    return nx.number_connected_components(G.subgraph(idx))
+
 # Parallelize calculation of tissue topology (# coneccted components)
 if __name__ == '__main__':
     
@@ -58,30 +63,25 @@ if __name__ == '__main__':
     n_workers = mp.cpu_count()
     pool = mp.Pool(n_workers)
     
-    # Define computation
-    def n_connected_components(idx):
-        """Computes number of connected components given cell indices"""
-        return nx.number_connected_components(G.subgraph(idx))
-
     # Perform parallel computation
     result_list = pool.map(n_connected_components, combs_idx)
     ncc = np.asarray(result_list)
 
-    ## Perform UMAP
-    # Select data
-    data_slice = slice(None, None, None)
-    # data_slice = slice(0, 3000, 300)
-    data       = combs[data_slice]
-    clusters   = ncc[data_slice]
-    colors     = [sns.color_palette()[i] for i in clusters]
+## Perform UMAP
+# Select data
+data_slice = slice(None, None, None)
+# data_slice = slice(0, 3000, 300)
+data       = combs[data_slice]
+clusters   = ncc[data_slice]
+colors     = [sns.color_palette()[i] for i in clusters]
 
-    # # Perform UMAP with progress
-    # reducer   = umap.UMAP(metric="hamming", verbose=True)
-    # embedding = reducer.fit_transform(combs)
-    
-    #### DUMMY EMBEDDING ############
-    embedding = np.random.random((ncombs, 2))
-    #################################
+# # Perform UMAP with progress
+# reducer   = umap.UMAP(metric="hamming", verbose=True)
+# embedding = reducer.fit_transform(combs)
+
+#### DUMMY EMBEDDING ############
+embedding = np.random.random((ncombs, 2))
+#################################
 
 # Combine into dataframe
 df = pd.DataFrame(dict(
