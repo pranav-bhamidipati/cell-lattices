@@ -11,6 +11,7 @@ import numpy as np
 import scipy.special as sp
 from scipy.spatial import distance as dist
 from tqdm import tqdm
+import pandas as pd
 
 import umap
 
@@ -43,13 +44,19 @@ ncomb = int(sp.comb(n, n_sub))
 # Get all cell type combinations as indices (for computing # components)
 combs_idx = [i for i in combinations(np.arange(n), n_sub)]
 
+print("1")
+
 # Get combinations as Boolean data (for UMAP)
 combs_bool = np.zeros((ncomb, n), dtype=bool)
 for i, idx in enumerate(tqdm(combs_idx)):
     combs_bool[i, idx] = True
 
+print("2")
+
 # Get combinations as strings
 combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
+
+print("3")
 
 # Define computation
 def n_connected_components(idx):
@@ -63,16 +70,20 @@ if __name__ == '__main__':
     n_workers = mp.cpu_count()
     pool = mp.Pool(n_workers)
     
+    print("3")
+
     # Perform parallel computation
     result_list = pool.map(n_connected_components, combs_idx)
-    ncc = np.asarray(result_list)
+    n_comp = np.asarray(result_list)
+
+    print("4")
 
 ## Perform UMAP
 # Select data
 data_slice = slice(None, None, None)
 # data_slice = slice(0, 3000, 300)
-data       = combs[data_slice]
-clusters   = ncc[data_slice]
+data       = combs_bool[data_slice]
+clusters   = n_comp[data_slice]
 colors     = [sns.color_palette()[i] for i in clusters]
 
 # # Perform UMAP with progress
@@ -80,16 +91,20 @@ colors     = [sns.color_palette()[i] for i in clusters]
 # embedding = reducer.fit_transform(combs)
 
 #### DUMMY EMBEDDING ############
-embedding = np.random.random((ncombs, 2))
+embedding = np.random.random((ncomb, 2))
 #################################
+
+print("5")
 
 # Combine into dataframe
 df = pd.DataFrame(dict(
     combination = combs_str,
-    n_components = ncc,
+    n_components = n_comp,
     umap_x = embedding[:, 0],
     umap_y = embedding[:, 1],
 ))
+
+print("6")
 
 data_fname = "cellgraph_embedding.csv"
 data_fpath = os.path.join(save_dir, data_fname)
