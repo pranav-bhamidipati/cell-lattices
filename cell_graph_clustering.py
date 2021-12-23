@@ -21,7 +21,7 @@ import seaborn as sns
 
 # Options for saving output(s)
 save     = True
-save_dir = os.path.realpath("./plots")
+save_dir = os.path.realpath("/home/pbhamidi/git/cell-lattices/plots")
 # fmt      = "png"
 # dpi      = 300
 
