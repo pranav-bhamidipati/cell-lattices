@@ -8,11 +8,11 @@ To get started:
 ## Construct environment with `conda`
 Move into the repo directory and use the `environment.yml` file to construct a custom virtual environment. You can store this environment along with your other environments (e.g. `base`) by running `conda env create` with the `--name` option
 
-`conda env create --file ./environment.yml --name cell-lattices`
+```conda env create --file ./environment.yml --name cell-lattices```
 
 or you can store the environment in a user-defined location by providing the `--prefix` option. For example, you can make a folder `env` locally in the repo and store the environment there.
 
-`conda env create --file ./environment.yml --prefix ./env`
+```conda env create --file ./environment.yml --prefix ./env```
 
 This can take a while (sometimes up to 10-20 mins) to solve the environment. Follow the prompts to finish creation. If it's taking a super long time, this can indicate server issues with Anaconda - this usually resolves if you try again later.
 
@@ -20,11 +20,11 @@ This can take a while (sometimes up to 10-20 mins) to solve the environment. Fol
 
 Unfortunately, `conda` supports either a name or a prefix but not both. So depending on which you did above, run
 
-`conda deactivate && conda activate cell-lattices`
+```conda deactivate && conda activate cell-lattices```
 
 or
 
-`conda deactivate && conda activate ./env`
+```conda deactivate && conda activate ./env```
 
 I prefer the latter, so I can debug more easily, the directory path is filesystem-invariant, and I can move the environment around without root permission.
 
@@ -32,12 +32,12 @@ I prefer the latter, so I can debug more easily, the directory path is filesyste
 
 This module reads and writes to a data directory `./data` and writes graphical outputs to `./plots`. These can be large, possibly binary files that are expensive/inefficient to track with Git, so we ignore them. You can make these folders locally in the repo.
 
-`mkdir ./data ./plots`
+```mkdir ./data ./plots```
 
 Alternatively, you can store these files elsewhere on your filesystem and access them via symbolic links.
 
-`ln -s /path/to/data ./data
-ln -s /path/to/plots ./plots`
+```ln -s /path/to/data ./data
+ln -s /path/to/plots ./plots```
 
 Remember that these folders are ignored by Git, so the user is responsible for keeping track of their contents.
 
