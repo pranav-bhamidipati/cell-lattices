@@ -17,6 +17,7 @@ dependencies:
 #  - h5py=3.*
 #  - pytables=3.*
   - conda-forge::umap-learn=0.*
+  - conda-forge::pynndescent=0.*
   - conda-forge::datashader=0.*
   - conda-forge::bokeh=2.*
   - conda-forge::tqdm=4.*
