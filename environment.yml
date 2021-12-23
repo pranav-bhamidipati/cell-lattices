@@ -34,6 +34,7 @@ dependencies:
   - pip
   - pip:
     - sacred
+    - psutil
     - networkx==2.*
 #    - bebi103==0.1.8
 #    - matplotlib-scalebar==0.*
