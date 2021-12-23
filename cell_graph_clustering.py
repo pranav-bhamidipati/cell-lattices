@@ -2,6 +2,7 @@
 # coding: utf-8
 import os
 from itertools import combinations
+import psutil
 import multiprocessing as mp
 
 import networkx as nx
@@ -19,6 +20,10 @@ import colorcet as cc
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# Define computation
+def n_connected_components(idx):
+    """Computes number of connected components given cell indices"""
+    return nx.number_connected_components(G.subgraph(idx))
 
 # Options for saving output(s)
 save     = True
@@ -38,45 +43,41 @@ G = nx.from_numpy_matrix(A)
 n = A.shape[0]
 n_sub = n // 2
 
-# Get total number of permutations this tissue can undergo
-ncomb = int(sp.comb(n, n_sub))
-
-# Get all cell type combinations as indices (for computing # components)
-combs_idx = [i for i in combinations(np.arange(n), n_sub)]
-
-print("1")
-
-# Get combinations as Boolean data (for UMAP)
-combs_bool = np.zeros((ncomb, n), dtype=bool)
-for i, idx in enumerate(tqdm(combs_idx)):
-    combs_bool[i, idx] = True
-
-print("2")
-
-# Get combinations as strings
-combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
-
-print("3")
-
-# Define computation
-def n_connected_components(idx):
-    """Computes number of connected components given cell indices"""
-    return nx.number_connected_components(G.subgraph(idx))
-
 # Parallelize calculation of tissue topology (# coneccted components)
 if __name__ == '__main__':
     
+    # Get total number of permutations this tissue can undergo
+    ncomb = int(sp.comb(n, n_sub))
+
+    # Get all cell type combinations as indices (for computing # components)
+    combs_idx = [i for i in combinations(np.arange(n), n_sub)]
+
+    print("Making Boolean combinations")
+
+    # Get combinations as Boolean data (for UMAP)
+    combs_bool = np.zeros((ncomb, n), dtype=bool)
+    for i, idx in enumerate(tqdm(combs_idx)):
+        combs_bool[i, idx] = True
+
+    print("Making string combinations")
+
+    # Get combinations as strings
+    combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
+
+    print("Assembling worker pool")
+
     # Get worker pool
-    n_workers = mp.cpu_count()
-    pool = mp.Pool(n_workers)
+    pool = mp.Pool(psutil.cpu_count(logical=False))
     
-    print("3")
+    print("Computing n_components")
 
     # Perform parallel computation
     result_list = pool.map(n_connected_components, combs_idx)
     n_comp = np.asarray(result_list)
 
-    print("4")
+    print("Closing worker pool")
+
+    pool.close()
 
 ## Perform UMAP
 # Select data
@@ -86,15 +87,17 @@ data       = combs_bool[data_slice]
 clusters   = n_comp[data_slice]
 colors     = [sns.color_palette()[i] for i in clusters]
 
+print("Performing UMAP")
+
 # Perform UMAP with progress
 reducer   = umap.UMAP(metric="hamming", verbose=True)
-embedding = reducer.fit_transform(combs)
+embedding = reducer.fit_transform(combs_bool)
 
 #### DUMMY EMBEDDING ############
 # embedding = np.random.random((ncomb, 2))
 #################################
 
-print("5")
+print("Combining data and saving")
 
 # Combine into dataframe
 df = pd.DataFrame(dict(
@@ -104,12 +107,11 @@ df = pd.DataFrame(dict(
     umap_y = embedding[:, 1],
 ))
 
-print("6")
-
-data_fname = "cellgraph_embedding.csv"
-data_fpath = os.path.join(save_dir, data_fname)
-df.to_csv(data_fpath, index=False)
-print(f"Saved to {data_fpath}")
+if save:
+    data_fname = "cellgraph_embedding.csv"
+    data_fpath = os.path.join(save_dir, data_fname)
+    df.to_csv(data_fpath, index=False)
+    print(f"Saved to {data_fpath}")
 
 # # Plot
 # plt.scatter(

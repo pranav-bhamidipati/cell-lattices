@@ -2,9 +2,9 @@
 
 #Submit this script with: sbatch submit_cell_graph_clustering.sh
 
-#SBATCH --time=1:00:00               # walltime
-#SBATCH --ntasks=32                  # number of processor cores (i.e. tasks)
-#SBATCH --mem-per-cpu=4G             # memory per CPU core
+#SBATCH --time=3:00:00               # walltime
+#SBATCH --ntasks=8                   # number of processor cores (i.e. tasks)
+#SBATCH --mem-per-cpu=32G            # memory per CPU core
 #SBATCH -J "CellGraphClustering"     # job name
 #SBATCH --mail-user=pbhamidi@usc.edu # email address
 #SBATCH --mail-type=BEGIN
