@@ -10,15 +10,8 @@ import cell_lattices as cx
 
 import numpy as np
 import scipy.special as sp
-from scipy.spatial import distance as dist
 from tqdm import tqdm
 import pandas as pd
-
-import umap
-
-import colorcet as cc
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Options for saving output(s)
 save     = True
@@ -38,12 +31,24 @@ G = nx.from_numpy_matrix(A)
 n = A.shape[0]
 n_sub = n // 2
 
+# Get total number of permutations this tissue can undergo
+ncomb = int(sp.comb(n, n_sub))
+n_cpu = psutil.cpu_count(logical=False)
+
+# Create progress bar (approximate, since multiprocess is lazy)
+pbar = tqdm(total=ncomb // n_cpu)
+
 # Define functions
 def get_graph_hashes(idx):
     subG        = G.subgraph(idx)
     graph_hash  = nx.algorithms.weisfeiler_lehman_graph_hash(subG)
-    binary_hash = cx.indices_to_bin_hash(idx, n)
-    return graph_hash, binary_hash
+    # binary_hash = cx.indices_to_bin_hash(idx, n)
+    # return graph_hash, binary_hash
+    
+    # Update progress
+    pbar.update(1)
+    
+    return cx.indices_to_binstr(idx, n), graph_hash
 
 def n_connected_components(idx):
     """Computes number of connected components given cell indices"""
@@ -59,67 +64,59 @@ def n_connected_components(idx):
 # Parallelize calculation of tissue topology (# coneccted components)
 if __name__ == '__main__':
     
-    # Get total number of permutations this tissue can undergo
-    ncomb = int(sp.comb(n, n_sub))
+    print("Getting all cell type combinations")
 
+#     print("Making Boolean combinations")
     # Get all cell type combinations as indices (for computing # components)
     combs_idx = [i for i in combinations(np.arange(n), n_sub)]
 
-    print("Making Boolean combinations")
+#     # Get combinations as Boolean data (for UMAP)
+#     combs_bool = np.zeros((ncomb, n), dtype=bool)
+#     for i, idx in enumerate(tqdm(combs_idx)):
+#         combs_bool[i, idx] = True
 
-    # Get combinations as Boolean data (for UMAP)
-    combs_bool = np.zeros((ncomb, n), dtype=bool)
-    for i, idx in enumerate(tqdm(combs_idx)):
-        combs_bool[i, idx] = True
+#     print("Making string combinations")
 
-    print("Making string combinations")
-
-    # Get combinations as strings
-    combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
+#     # Get combinations as strings
+#     combs_str = ["".join([str(int(c)) for c in _comb]) for _comb in combs_bool]
 
     print("Assembling worker pool")
 
     # Get worker pool
     pool = mp.Pool(psutil.cpu_count(logical=False))
     
-    print("Computing n_components")
+    print("Computing hashes for graph")
 
     # Perform parallel computation
-    result_list = pool.map(get_graph_hashes, combs_idx)
+    # results = pool.imap_unordered(get_graph_hashes, combs_idx)
+    results = pool.imap(get_graph_hashes, combs_idx, chunksize=5)
     
     # Unravel results
 #    n_comp, n_edges = map(list, zip(*result_list))
-    graph_hashes, binary_hashes = map(list, zip(*result_list))
-
+    bin_strings, graph_hashes = map(list, zip(*results))
+    
     print("Closing worker pool")
 
     pool.close()
+    pool.join()
+
+pbar.close()
 
 # Combine into dataframe
 df = pd.DataFrame(dict(
-    binary_hash=binary_hashes
+    binary_str = bin_strings,
+    graph_hash = graph_hashes,
 #    combination = combs_str,
 #    n_components = n_comp,
 ))
+df = df.sort_values("binary_str")
+
+# Get smallest binary hash for each graph hash (~50x compression)
+df = df.groupby("graph_hash").agg(min).reset_index()
 
 if save:
-    data_fname = "cellgraph_enumeration.csv"
+    print("Saving!")
+    data_fname = "cellgraph_hashes.csv"
     data_fpath = os.path.join(save_dir, data_fname)
     df.to_csv(data_fpath, index=False)
     print(f"Saved to {data_fpath}")
-
-# # Plot
-# plt.scatter(
-#     embedding[:, 0],
-#     embedding[:, 1],
-#     c=colors)
-# plt.gca().set_aspect('equal', 'datalim')
-# plt.title('UMAP projection of tissue topologies ($5 \times 5$)', fontsize=24)
-    
-# if save:
-#     fname = "topology_UMAP_5x5"
-#     fpath = os.path.join(save_dir, fname + "." + fmt)
-#     plt.savefig(fpath, dpi=dpi)
-# else:
-#     plt.show()
-
