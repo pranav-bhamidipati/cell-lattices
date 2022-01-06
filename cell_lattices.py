@@ -83,7 +83,18 @@ def hex_grid(rows, cols=0, r=1., sigma=0, **kwargs):
     
     return X
 
+def get_outer_idx(rows, cols):
+    """Returns the indices of cells on the border of the lattice grid"""
+    return np.array([
+        rows * c + r
+        for c in range(cols)
+        for r in range(rows)
+        if ((r in (0, rows - 1)) or (c in (0, cols - 1)))
+    ])
 
+
+# Vectorized rounding
+vround = np.vectorize(round)
 
 # Vertices of a regular hexagon centered at (0,0) with width 1.
 _hex_vertices = (
