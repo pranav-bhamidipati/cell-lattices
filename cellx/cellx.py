@@ -1,4 +1,7 @@
+#import utils as ut
+
 import numpy as np
+import scipy.sparse as sps
 import numba
 
 from functools import reduce
@@ -88,14 +91,3 @@ def get_outer_idx(rows, cols):
         for r in range(rows)
         if ((r in (0, rows - 1)) or (c in (0, cols - 1)))
     ])
-
-
-# Vectorized rounding
-vround = np.vectorize(round)
-
-
-@numba.njit
-def normalize(x, xmin, xmax):
-    """Normalize `x` given explicit min/max values. """
-    return (x - xmin) / (xmax - xmin)
-
