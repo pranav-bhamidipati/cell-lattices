@@ -23,8 +23,8 @@ dependencies:
   - conda-forge::tqdm=4.*
 #  - conda-forge::ffmpeg
   - conda-forge::imageio-ffmpeg
-  - conda-forge::firefox
-  - conda-forge::geckodriver
+#  - conda-forge::firefox
+#  - conda-forge::geckodriver
 #  - conda-forge::ipywidgets
 #  - conda-forge::shapely=1.*
 #  - conda-forge::descartes=1.*
