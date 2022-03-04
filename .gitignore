@@ -1,6 +1,7 @@
 data
 scratch/
 plots/
+figures/
 stan_output/
 
 # Sacred (provenance system for experiments)
