@@ -3,7 +3,7 @@ name: lateral_signaling
 
 dependencies:
   - python=3.9.*
-  - numpy=1.19.*
+  - numpy=1.20.*
   - pandas=1.*
   - scipy=1.7.*
   - numba
@@ -38,6 +38,9 @@ dependencies:
     - psutil
 #    - "jax[cpu]"
     - "jax[cuda] -f https://storage.googleapis.com/jax-releases/jax_releases.html"
+    - optax
+    - tensorflow
+    - tbp-nightly
     - networkx==2.*
 #    - bebi103==0.1.8
 #    - matplotlib-scalebar==0.*
