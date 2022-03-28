@@ -1,5 +1,5 @@
-#import utils as ut
-#import geom
+from . import utils
+from . import geom
 
 import numpy as np
 import numba
@@ -151,7 +151,7 @@ def plot_hex_sheet(
         _cmap = cc.cm[cmap]
     else:
         _cmap = cmap
-    colors = np.asarray(_cmap(ut.normalize(var, vmin, vmax)))
+    colors = np.asarray(_cmap(utils.normalize(var, vmin, vmax)))
     
     # Get polygon size. Optionally increase size  
     #  so there's no visual gaps between cells
